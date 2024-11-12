@@ -1,3 +1,4 @@
+//Programul merge doar daca este in main.cpp sunt doua fisiere sursa pentru a adauga ambele coduri
 #include <iostream>
 #include <fstream>
 #include <string>
