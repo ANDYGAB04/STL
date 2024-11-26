@@ -30,6 +30,7 @@ int main()
 
 
     inFile >> no_problems;
+
     vector<Problem> problems(no_problems);
 
     for (int i = 0; i < no_problems; i++)
@@ -41,7 +42,9 @@ int main()
     }
 
     inFile >> no_doctors;
+
 	vector<Doctor> doctors(no_doctors);
+
     for (int i = 0; i < no_doctors; i++)
     {
         inFile >> doctors[i].name;
@@ -49,12 +52,17 @@ int main()
     }
 
     for (int i = 0; i < no_doctors; i++) {
+
         int time = 8;
+
 		priority_queue<Problem> pq;
+
         for (int j = 0; j < no_problems; j++) {
+
             auto it = find_if(problems.begin(), problems.end(), [&](Problem p) {
                 return p.speciality == doctors[i].speciality;
                 });
+
             if (it != problems.end()) {
                 pq.push(*it);
 				problems.erase(it);
@@ -63,7 +71,9 @@ int main()
             }
         }
             if (!pq.empty()) {
+
 				vector<string> temp;
+
                 while (!pq.empty()) {
                     if (time - pq.top().duration >= 0) {
                         temp.push_back(pq.top().name);
@@ -75,10 +85,13 @@ int main()
                           pq.pop();
                    }
                 }
+
                 cout << doctors[i].name << " " << temp.size() << " ";
+
                 for (auto i : temp) {
                     cout << i << " ";
                 }
+
                 cout << endl;
             }
       }
