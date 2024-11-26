@@ -3,72 +3,84 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <tuple>
+#include <queue>
 
 using namespace std;
+struct Problem
+{
+	string name;
+	string speciality;
+	int duration;
+	int priority;
+};
+struct Doctor
+{
+	string name;
+	string speciality;
+};
+bool operator<(const Problem& p1, const Problem& p2)
+{
+	return p1.priority < p2.priority;
+}
 
 int main()
 {
-    ifstream inFile("input4_bonus.txt");
-    int no_problems, no_doctors, duration;
-    string name, speciality;
+    ifstream inFile("input2.txt");
+    int no_problems, no_doctors;
+
 
     inFile >> no_problems;
-    vector<tuple<string, string, int>> problems;
+    vector<Problem> problems(no_problems);
+
     for (int i = 0; i < no_problems; i++)
     {
-        inFile >> name;
-        inFile >> speciality;
-        inFile >> duration;
-        problems.push_back(make_tuple(name, speciality, duration));
-
+        inFile >> problems[i].name;
+        inFile >> problems[i].speciality;
+        inFile >> problems[i].duration;
+		inFile >> problems[i].priority;
     }
 
     inFile >> no_doctors;
-    vector<string> docspeciality;
-    vector<string> docnames;
+	vector<Doctor> doctors(no_doctors);
     for (int i = 0; i < no_doctors; i++)
     {
-        inFile >> name;
-        inFile >> speciality;
-        docspeciality.push_back(speciality);
-        docnames.push_back(name);
+        inFile >> doctors[i].name;
+        inFile >> doctors[i].speciality;
     }
-    int i = 0, j = 0, s, nr;
-    for (auto name = docnames.begin(); name < docnames.end(); name++) {
-        s = 8;
-        nr = 0;
-        bool ok = false;
-        vector<string> IdProbleme;
-        cout << *name << " ";
-        for (auto it = 0; it < problems.size(); it++)
-        {
 
-            string spec = get<1>(problems[it]);
-            int dur = get<2>(problems[it]);
-            string name = get<0>(problems[it]);
-            if (docspeciality[0] == spec && s - dur >= 0) {
-                s -= dur;
-                if (s < 0)
-                    break;
-                IdProbleme.push_back(name);
-                problems.erase(remove(problems.begin(), problems.end(), make_tuple(name, spec, dur)), problems.end());
-                it--;
+    for (int i = 0; i < no_doctors; i++) {
+        int time = 8;
+		priority_queue<Problem> pq;
+        for (int j = 0; j < no_problems; j++) {
+            auto it = find_if(problems.begin(), problems.end(), [&](Problem p) {
+                return p.speciality == doctors[i].speciality;
+                });
+            if (it != problems.end()) {
+                pq.push(*it);
+				problems.erase(it);
+				
 
             }
-            else if (s - dur < 0) {
-                break;
-            }
-
-
         }
-        cout << IdProbleme.size() << " ";
-        for (auto i : IdProbleme)
-            cout << i << " ";
-        cout << endl;
-        docspeciality.erase(docspeciality.begin());
-        IdProbleme.clear();
-    }
-
+            if (!pq.empty()) {
+				vector<string> temp;
+                while (!pq.empty()) {
+                    if (time - pq.top().duration >= 0) {
+                        temp.push_back(pq.top().name);
+                        time -= pq.top().duration;
+                        pq.pop();
+                    }
+                    else{
+                        problems.push_back(pq.top());
+                          pq.pop();
+                   }
+                }
+                cout << doctors[i].name << " " << temp.size() << " ";
+                for (auto i : temp) {
+                    cout << i << " ";
+                }
+                cout << endl;
+            }
+      }
     return 0;
 }
