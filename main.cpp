@@ -16,7 +16,8 @@ struct Problem
 struct Doctor
 {
 	string name;
-	string speciality;
+    int doctors_nr;
+	vector<string> speciality;
 };
 bool operator<(const Problem& p1, const Problem& p2)
 {
@@ -25,7 +26,7 @@ bool operator<(const Problem& p1, const Problem& p2)
 
 int main()
 {
-    ifstream inFile("input2.txt");
+    ifstream inFile("input.txt");
     int no_problems, no_doctors;
 
 
@@ -48,7 +49,12 @@ int main()
     for (int i = 0; i < no_doctors; i++)
     {
         inFile >> doctors[i].name;
-        inFile >> doctors[i].speciality;
+		inFile >> doctors[i].doctors_nr;
+        for (int j = 0; j < doctors[i].doctors_nr; j++) {
+             string x;
+			inFile >> x;
+           doctors[i].speciality.push_back(x);
+        }
     }
 
     for (int i = 0; i < no_doctors; i++) {
@@ -60,7 +66,7 @@ int main()
         for (int j = 0; j < no_problems; j++) {
 
             auto it = find_if(problems.begin(), problems.end(), [&](Problem p) {
-                return p.speciality == doctors[i].speciality;
+                return find(doctors[i].speciality.begin(), doctors[i].speciality.end(), p.speciality) != doctors[i].speciality.end();
                 });
 
             if (it != problems.end()) {
@@ -73,11 +79,13 @@ int main()
             if (!pq.empty()) {
 
 				vector<string> temp;
+                vector<int> temp2;
 
                 while (!pq.empty()) {
                     if (time - pq.top().duration >= 0) {
                         temp.push_back(pq.top().name);
-                        time -= pq.top().duration;
+                        time -= pq.top().duration; 
+                        temp2.push_back(pq.top().duration);
                         pq.pop();
                     }
                     else{
@@ -85,11 +93,13 @@ int main()
                           pq.pop();
                    }
                 }
-
+                int time = 9;
                 cout << doctors[i].name << " " << temp.size() << " ";
 
-                for (auto i : temp) {
-                    cout << i << " ";
+                for (auto i = 0; i < temp.size();i++) {
+                    cout << temp[i] << " ";
+                    cout << time << " ";
+					time = time + temp2[i];
                 }
 
                 cout << endl;
