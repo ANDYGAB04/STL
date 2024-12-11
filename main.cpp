@@ -4,12 +4,15 @@
 #include <vector>
 #include <algorithm>
 #include <queue>
+#include <map>
+#include <set>
 
 using namespace std;
 struct Problem
 {
 	string name;
 	string speciality;
+    int hour;
 	int duration;
 	int priority;
 };
@@ -21,39 +24,48 @@ struct Doctor
 };
 bool operator<(const Problem& p1, const Problem& p2)
 {
-	return p1.priority < p2.priority;
+	if (p1.hour == p2.hour)
+		return p1.priority > p2.priority;
+    else
+	return p1.hour< p2.hour;
 }
+
 
 int main()
 {
-    ifstream inFile("input.txt");
+    ifstream inFile("input4_bonus.txt");
     int no_problems, no_doctors;
 
 
     inFile >> no_problems;
 
-    vector<Problem> problems(no_problems);
+    vector<Problem> problems;
+
 
     for (int i = 0; i < no_problems; i++)
     {
-        inFile >> problems[i].name;
-        inFile >> problems[i].speciality;
-        inFile >> problems[i].duration;
-		inFile >> problems[i].priority;
+        Problem p;
+        inFile >> p.name;
+        inFile >> p.speciality;
+        inFile >> p.hour;
+        inFile >> p.duration;
+        inFile >> p.priority;
+        problems.push_back(p);
     }
+
 
     inFile >> no_doctors;
 
-	vector<Doctor> doctors(no_doctors);
+    vector<Doctor> doctors(no_doctors);
 
     for (int i = 0; i < no_doctors; i++)
     {
         inFile >> doctors[i].name;
-		inFile >> doctors[i].doctors_nr;
+        inFile >> doctors[i].doctors_nr;
         for (int j = 0; j < doctors[i].doctors_nr; j++) {
-             string x;
-			inFile >> x;
-           doctors[i].speciality.push_back(x);
+            string x;
+            inFile >> x;
+            doctors[i].speciality.push_back(x);
         }
     }
 
@@ -61,7 +73,7 @@ int main()
 
         int time = 8;
 
-		priority_queue<Problem> pq;
+        set<Problem> pq;
 
         for (int j = 0; j < no_problems; j++) {
 
@@ -70,40 +82,42 @@ int main()
                 });
 
             if (it != problems.end()) {
-                pq.push(*it);
-				problems.erase(it);
-				
+                pq.insert(*it);
+                problems.erase(it);
+
 
             }
         }
-            if (!pq.empty()) {
-
-				vector<string> temp;
-                vector<int> temp2;
-
-                while (!pq.empty()) {
-                    if (time - pq.top().duration >= 0) {
-                        temp.push_back(pq.top().name);
-                        time -= pq.top().duration; 
-                        temp2.push_back(pq.top().duration);
-                        pq.pop();
-                    }
-                    else{
-                        problems.push_back(pq.top());
-                          pq.pop();
-                   }
-                }
-                int time = 9;
-                cout << doctors[i].name << " " << temp.size() << " ";
-
-                for (auto i = 0; i < temp.size();i++) {
-                    cout << temp[i] << " ";
-                    cout << time << " ";
-					time = time + temp2[i];
-                }
-
-                cout << endl;
+        if (pq.size()>0) {
+        vector<string> temp;
+        vector<int> temp2;
+        int hourspend = pq.begin()->hour;
+        while (!pq.empty()) {
+            if (time - pq.begin()->duration >= 0&&pq.begin()->hour>=hourspend) {
+                temp.push_back(pq.begin()->name);
+                time -= pq.begin()->duration;
+                temp2.push_back(pq.begin()->hour);
+				hourspend = hourspend + pq.begin()->duration;
+                pq.erase(pq.begin());
             }
-      }
+            else {
+                problems.push_back(*pq.begin());
+                pq.erase(pq.begin());
+            }
+        }
+      
+            cout << doctors[i].name << " " << temp.size() << " ";
+
+            for (auto i = 0; i < temp.size(); i++) {
+                cout << temp[i] << " ";
+                cout << temp2[i] << " ";
+            }
+
+            cout << endl;
+        }
+    }
+
+
+
     return 0;
 }
